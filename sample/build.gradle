@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId "jp.kshoji.blemidi.sample"
         minSdkVersion 18
-        targetSdkVersion 22
+        targetSdkVersion 25
         versionCode 3
         versionName "1.2"
     }
@@ -34,7 +34,8 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    wearApp project(':sample-wear')
+//    wearApp project(':sample-wear')
     compile project(':BLE-MIDI-library')
     compile 'com.google.android.gms:play-services:7.3.0'
+    compile 'pub.devrel:easypermissions:0.4.3'
 }

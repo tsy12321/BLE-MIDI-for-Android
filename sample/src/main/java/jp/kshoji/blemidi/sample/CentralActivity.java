@@ -1,5 +1,6 @@
 package jp.kshoji.blemidi.sample;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -40,6 +41,8 @@ import jp.kshoji.blemidi.listener.OnMidiScanStatusListener;
 import jp.kshoji.blemidi.sample.util.SoundMaker;
 import jp.kshoji.blemidi.sample.util.Tone;
 import jp.kshoji.blemidi.util.BleUtils;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Activity for BLE MIDI Central Application
@@ -52,6 +55,10 @@ public class CentralActivity extends Activity {
     MenuItem toggleScanMenu;
 
     boolean isScanning = false;
+
+    private final static int RC_LOCATION = 1;
+
+    private final String TAG = "CentralActivity";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -74,7 +81,7 @@ public class CentralActivity extends Activity {
                 if (isScanning) {
                     bleMidiCentralProvider.stopScanDevice();
                 } else {
-                    bleMidiCentralProvider.startScanDevice(0);
+                    scanDevice();
                 }
                 return true;
         }
@@ -574,9 +581,17 @@ public class CentralActivity extends Activity {
                 }
             }
         });
+    }
 
-        // scan devices for 30 seconds
-        bleMidiCentralProvider.startScanDevice(30000);
+    @AfterPermissionGranted(RC_LOCATION)
+    private void scanDevice() {
+        String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            bleMidiCentralProvider.startScanDevice(0);
+        } else {
+            // Do not have permissions, request them now
+            EasyPermissions.requestPermissions(this, "request location", RC_LOCATION, perms);
+        }
     }
 
     @Override
@@ -612,6 +627,14 @@ public class CentralActivity extends Activity {
                 setupCentralProvider();
             }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
     @Override
